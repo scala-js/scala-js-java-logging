@@ -1,7 +1,7 @@
 # scalajs-java-logging
 
 [![Build Status](https://travis-ci.org/scala-js/scala-js-java-logging.svg?branch=master)](https://travis-ci.org/scala-js/scala-js-java-logging)
-[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.9.svg)](https://www.scala-js.org/)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.8.svg)](https://www.scala-js.org/)
 
 `scalajs-java-logging` is a BSD-licensed reimplementation of the `java.logging` API for Scala.js. 
 It enables this API in Scala.js projects.
