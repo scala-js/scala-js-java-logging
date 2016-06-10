@@ -6,6 +6,24 @@
 `scalajs-java-logging` is a BSD-licensed reimplementation of the `java.logging` API for Scala.js. 
 It enables this API in Scala.js projects.
 
+## Usage
+
+Simply add the following line to your sbt settings:
+
+```scala
+libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.0"
+```
+
+If you have a `crossProject`, the setting must be used only in the JS part:
+
+```scala
+lazy val myCross = crossProject.
+  ...
+  jsSettings.(
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.0"
+  )
+```
+
 ## Work in Progress / linking errors
 
 This library is a work in progress.
