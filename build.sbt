@@ -1,6 +1,8 @@
 import sbt.Keys._
 import org.scalajs.sbtplugin.cross.CrossProject
 
+crossScalaVersions := Seq("2.10.4", "2.11.8", "2.12.0")
+
 val commonSettings: Seq[Setting[_]] = Seq(
   version := "0.1.1-SNAPSHOT",
   organization := "org.scala-js",
