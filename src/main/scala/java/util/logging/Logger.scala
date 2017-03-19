@@ -10,7 +10,7 @@ object Logger {
   // Not implemented, deprecated on JDK 1.8
   //val global: Logger
 
-  private val defaultLogLevel: Level = Level.ALL
+  private val defaultLogLevel: Level = Level.INFO
 
   private val loggers: mutable.Map[String, Logger] = mutable.Map.empty
 
