@@ -6,38 +6,66 @@ import scala.collection.mutable
 object Logger {
 
   val GLOBAL_LOGGER_NAME: String =  "global"
+  private val ROOT_LOGGER_NAME: String = ""
 
   // Not implemented, deprecated on JDK 1.8
   //val global: Logger
 
   private val defaultLogLevel: Level = Level.INFO
 
-  private val loggers: mutable.Map[String, Logger] = mutable.Map.empty
+  private lazy val loggers: mutable.Map[String, Logger] = mutable.Map.empty
+
+  /**
+    * Find parent logger
+    */
+  @tailrec
+  private def findParentLoggerOf(name:String): Logger = {
+    name match {
+      case null => // Anonymous logger
+        rootLogger
+      case ROOT_LOGGER_NAME =>
+        null
+      case _ =>
+        val parentNodes = name.split("\\.").toList.dropRight(1)
+        val parentName = parentNodes.mkString(".")
+        loggers.get(parentName) match {
+          case Some(l) => l
+          case None =>
+            findParentLoggerOf(parentName)
+        }
+    }
+  }
 
   private def newLogger(name: String): Logger = {
     val logger = new Logger(name, null)
     logger.setLevel(null)
     logger.setUseParentHandlers(true)
-    logger.setParent(rootLogger)
+    logger.setParent(findParentLoggerOf(name))
+    updateChildLoggerParent(logger)
     logger
+  }
+
+  private def updateChildLoggerParent(parent:Logger): Unit ={
+    val prefix = s"${parent.getName}."
+    for((name, l) <- loggers if name.startsWith(prefix)) {
+      val currentParent = l.getParent
+      // For example, if a new parent is a.b and the child is a.b.c.d,
+      // unless the current parent is a.b.c, we need to update the parent
+      if(currentParent == null || !currentParent.getName.startsWith(prefix)) {
+        l.setParent(parent)
+      }
+    }
   }
 
   // Root is not visible to the outside but gives defaults
   private[this] val rootLogger: Logger = {
-    val l = new Logger("", null)
-    l.setLevel(defaultLogLevel)
-    l.setUseParentHandlers(false)
-    l.setParent(null)
-    l
+    val root = getLogger(ROOT_LOGGER_NAME)
+    root.setLevel(defaultLogLevel)
+    root.setUseParentHandlers(false)
+    root
   }
 
-  private[this] val globalLogger: Logger = {
-    val l = new Logger(GLOBAL_LOGGER_NAME, null)
-    l.setLevel(defaultLogLevel)
-    l.setUseParentHandlers(true)
-    l.setParent(rootLogger)
-    l
-  }
+  private[this] val globalLogger: Logger = getLogger(GLOBAL_LOGGER_NAME)
 
   def getGlobal(): Logger = globalLogger
 
@@ -50,20 +78,6 @@ object Logger {
 
   // Not implemented, no resource bundle in scala.js
   //def getLogger(name: String, resourceBundle: String): Logger
-
-  private[logging] def findParent(logger: Logger): Option[Logger] = {
-    @tailrec
-    def go(s: List[String]): Option[Logger] = s match {
-      case Nil => None
-
-      case b if loggers.contains(b.mkString(".")) =>
-        loggers.get(b.mkString("."))
-
-      case b => go(b.dropRight(1))
-    }
-
-    go(Option(logger.getName).getOrElse("").split("\\.").toList.dropRight(1))
-  }
 
   def getAnonymousLogger(): Logger = {
     // No references to anonymous loggers are kept
@@ -315,7 +329,7 @@ class Logger(name: String, resourceBundle: String) {
 
   def getUseParentHandlers(): Boolean = useParentsHandlers
 
-  def getParent(): Logger = Logger.findParent(this).getOrElse(parent)
+  def getParent(): Logger = parent
 
   def setParent(parent: Logger): Unit = this.parent = parent
 }
