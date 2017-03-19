@@ -41,18 +41,20 @@ object Logger {
     logger.setLevel(null)
     logger.setUseParentHandlers(true)
     logger.setParent(findParentLoggerOf(name))
-    updateChildLoggerParent(logger)
+    if (name != null) {
+      updateChildLoggerParent(logger)
+    }
     logger
   }
 
-  private def updateChildLoggerParent(parent:Logger): Unit ={
-    val prefix = s"${parent.getName}."
-    for((name, l) <- loggers if name.startsWith(prefix)) {
+  private def updateChildLoggerParent(newParent:Logger): Unit ={
+    val prefix = s"${newParent.getName}."
+    for ((name, l) <- loggers if name.startsWith(prefix)) {
       val currentParent = l.getParent
       // For example, if a new parent is a.b and the child is a.b.c.d,
       // unless the current parent is a.b.c, we need to update the parent
-      if(currentParent == null || !currentParent.getName.startsWith(prefix)) {
-        l.setParent(parent)
+      if (currentParent == null || !currentParent.getName.startsWith(prefix)) {
+        l.setParent(newParent)
       }
     }
   }

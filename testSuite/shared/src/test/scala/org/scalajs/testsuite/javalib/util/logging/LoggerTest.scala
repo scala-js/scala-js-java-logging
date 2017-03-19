@@ -56,6 +56,10 @@ class LoggerTest {
     assertNull(Logger.getAnonymousLogger().getLevel)
     assertTrue(Logger.getAnonymousLogger().getUseParentHandlers)
     assertNotNull(Logger.getAnonymousLogger().getParent)
+
+    // Sanity test of getAnonymousLogger after adding a new logger
+    val logger = Logger.getLogger(s"$prefix.a")
+    Logger.getAnonymousLogger()
   }
 
   @Test def test_properties(): Unit = {
