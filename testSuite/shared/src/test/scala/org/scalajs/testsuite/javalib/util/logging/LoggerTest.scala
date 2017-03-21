@@ -5,6 +5,8 @@ import java.util.logging._
 import org.junit.{Ignore, Test}
 import org.junit.Assert._
 
+import scala.annotation.tailrec
+
 class LoggerTest {
   // We add a prefix to all loggers. This avoids some errors when running tests
   // more than once as the loggers are global
@@ -54,6 +56,10 @@ class LoggerTest {
     assertNull(Logger.getAnonymousLogger().getLevel)
     assertTrue(Logger.getAnonymousLogger().getUseParentHandlers)
     assertNotNull(Logger.getAnonymousLogger().getParent)
+
+    // Sanity test of getAnonymousLogger after adding a new logger
+    val logger = Logger.getLogger(s"$prefix.a")
+    Logger.getAnonymousLogger()
   }
 
   @Test def test_properties(): Unit = {
@@ -337,10 +343,38 @@ class LoggerTest {
   }
 
   @Test def test_logger_parents_by_name(): Unit = {
-    val l1 = Logger.getLogger(s"$prefix.a.b.c.d")
-    assertEquals("", l1.getParent.getName)
+    val loggerName = s"${prefix}.a.b.c.d"
+    var l1 = Logger.getLogger(loggerName)
+    val p1 = l1.getParent
 
-    val l2 = Logger.getLogger(s"$prefix.a.b")
-    assertEquals(l2.getName, l1.getParent.getName)
+    // l1's parent should be the root logger
+    val r = Logger.getLogger("")
+    assertEquals(p1.getName, r.getName)
+    assertSame(p1, r)
+
+    // Add a logger in between root and l1
+    val l2 = Logger.getLogger(s"${prefix}.a.b")
+    // l1's parent should be l2
+    val p2 = l1.getParent
+    assertEquals(l2.getName, p2.getName)
+    assertSame(l2, p2)
+  }
+
+  @Test def test_single_root(): Unit = {
+    val l1 = Logger.getLogger(s"${prefix}.test1")
+    val l2 = Logger.getLogger(s"${prefix}.test2.a")
+
+    @tailrec
+    def findRoot(l: Logger): Logger = l.getParent match {
+      case null  => l
+      case other => findRoot(l.getParent)
+    }
+
+    val r1 = findRoot(l1)
+    val r2 = findRoot(l2)
+    val r = Logger.getLogger("")
+    assertSame(r1, r2)
+    assertSame(r1, r)
+    assertSame(r2, r)
   }
 }
