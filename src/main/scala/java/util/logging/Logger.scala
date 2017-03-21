@@ -5,21 +5,19 @@ import scala.collection.mutable
 
 object Logger {
 
-  val GLOBAL_LOGGER_NAME: String =  "global"
-  private val ROOT_LOGGER_NAME: String = ""
+  final val GLOBAL_LOGGER_NAME = "global"
+  private final val ROOT_LOGGER_NAME = ""
 
   // Not implemented, deprecated on JDK 1.8
   //val global: Logger
 
   private val defaultLogLevel: Level = Level.INFO
 
-  private lazy val loggers: mutable.Map[String, Logger] = mutable.Map.empty
+  private val loggers: mutable.Map[String, Logger] = mutable.Map.empty
 
-  /**
-    * Find parent logger
-    */
+  /** Find parent logger */
   @tailrec
-  private def findParentLoggerOf(name:String): Logger = {
+  private def findParentLoggerOf(name: String): Logger = {
     name match {
       case null => // Anonymous logger
         rootLogger
@@ -27,11 +25,10 @@ object Logger {
         null
       case _ =>
         val parentNodes = name.split("\\.").toList.dropRight(1)
-        val parentName = parentNodes.mkString(".")
+        val parentName = name.substring(0, name.lastIndexOf('.').max(0))
         loggers.get(parentName) match {
           case Some(l) => l
-          case None =>
-            findParentLoggerOf(parentName)
+          case None    => findParentLoggerOf(parentName)
         }
     }
   }
@@ -47,14 +44,15 @@ object Logger {
     logger
   }
 
-  private def updateChildLoggerParent(newParent:Logger): Unit ={
+  private def updateChildLoggerParent(newParent: Logger): Unit ={
     val prefix = s"${newParent.getName}."
-    for ((name, l) <- loggers if name.startsWith(prefix)) {
-      val currentParent = l.getParent
-      // For example, if a new parent is a.b and the child is a.b.c.d,
-      // unless the current parent is a.b.c, we need to update the parent
+    for ((name, childLogger) <- loggers if name.startsWith(prefix)) {
+      val currentParent = childLogger.getParent
+      // For example, when a new parent is a.b:
+      // - if child a.b.c.d (parent = null) => needs to be a.b.c.d (parent = a.b)
+      // - if child a.b.c.e (parent = a.b.c) => no update is required.
       if (currentParent == null || !currentParent.getName.startsWith(prefix)) {
-        l.setParent(newParent)
+        childLogger.setParent(newParent)
       }
     }
   }

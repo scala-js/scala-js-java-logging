@@ -343,7 +343,7 @@ class LoggerTest {
   }
 
   @Test def test_logger_parents_by_name(): Unit = {
-    val loggerName = s"${prefix}.a.b.c.d}"
+    val loggerName = s"${prefix}.a.b.c.d"
     var l1 = Logger.getLogger(loggerName)
     val p1 = l1.getParent
 
@@ -365,8 +365,8 @@ class LoggerTest {
     val l2 = Logger.getLogger(s"${prefix}.test2.a")
 
     @tailrec
-    def findRoot(l:Logger): Logger = l.getParent match {
-      case null => l
+    def findRoot(l: Logger): Logger = l.getParent match {
+      case null  => l
       case other => findRoot(l.getParent)
     }
 
