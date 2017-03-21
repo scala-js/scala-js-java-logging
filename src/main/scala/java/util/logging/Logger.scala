@@ -24,7 +24,6 @@ object Logger {
       case ROOT_LOGGER_NAME =>
         null
       case _ =>
-        val parentNodes = name.split("\\.").toList.dropRight(1)
         val parentName = name.substring(0, name.lastIndexOf('.').max(0))
         loggers.get(parentName) match {
           case Some(l) => l
