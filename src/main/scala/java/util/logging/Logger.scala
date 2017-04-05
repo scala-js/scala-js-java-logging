@@ -117,14 +117,19 @@ class Logger(name: String, resourceBundle: String) {
 
   def getFilter(): Filter = filter
 
+  private[Logger] def publish(record: LogRecord): Unit = {
+    if (useParentsHandlers) {
+      val parent = getParent()
+      if (parent != null) {
+        parent.publish(record)
+      }
+    }
+    handlers.foreach(_.publish(record))
+  }
+
   def log(record: LogRecord): Unit = {
     if (isLoggable(record.getLevel)) {
-      if (useParentsHandlers) {
-        val parent = getParent()
-        if (parent != null)
-          parent.log(record)
-      }
-      handlers.foreach(_.publish(record))
+      publish(record)
     }
   }
 
