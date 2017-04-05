@@ -377,4 +377,34 @@ class LoggerTest {
     assertSame(r1, r)
     assertSame(r2, r)
   }
+
+  @Test def test_parent_logger_handler(): Unit = {
+    val a = Logger.getLogger(s"$prefix.a")
+    a.setLevel(Level.INFO)
+    val handlerA = new TestHandler
+    a.addHandler(handlerA)
+
+    val b = Logger.getLogger(s"$prefix.a.b")
+    a.setLevel(Level.INFO)
+    val handlerB = new TestHandler
+    b.addHandler(handlerB)
+
+    val child = Logger.getLogger(s"$prefix.a.b.c")
+    child.setLevel(Level.INFO)
+    child.fine("fine_msg")
+
+    // a(INFO) -> b(INFO) -> c(INFO)
+    // No FINE log level message should be reported because its parent and ancestor level is INFO
+    assertNull(handlerA.lastRecord)
+    assertNull(handlerB.lastRecord)
+
+    // a(INFO) -> b(INFO) -> c(FINE)
+    child.setLevel(Level.FINE)
+    child.fine("fine_msg2")
+
+    assertNotNull(handlerA.lastRecord)
+    assertEquals("fine_msg2", handlerA.lastRecord.getMessage)
+    assertNotNull(handlerB.lastRecord)
+    assertEquals("fine_msg2", handlerB.lastRecord.getMessage)
+  }
 }
