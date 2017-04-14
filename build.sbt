@@ -4,7 +4,7 @@ import org.scalajs.sbtplugin.cross.CrossProject
 crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
 
 val commonSettings: Seq[Setting[_]] = Seq(
-  version := "0.1.1-SNAPSHOT",
+  version := "0.1.1",
   organization := "org.scala-js",
   scalaVersion := "2.11.8",
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xfatal-warnings"),
