@@ -1,5 +1,7 @@
 package java.util.logging
 
+import java.lang.StringBuilder
+
 abstract class Formatter protected () {
 
   def format(record: LogRecord): String
@@ -17,7 +19,7 @@ abstract class Formatter protected () {
       // Instead we'll do simple text replacement, very imperative
       var msgAccumulator = new StringBuilder()
       var inParam = false
-      var paramInFlight:StringBuilder = null
+      var paramInFlight: StringBuilder = null
       var substitutionFailure = false // track failure to break the loop
       var i = 0
 
@@ -31,13 +33,13 @@ abstract class Formatter protected () {
           paramInFlight = new StringBuilder()
         } else if (inParam && currentChar != '}') {
           // accumulate the param
-          paramInFlight += currentChar
+          paramInFlight.append(currentChar)
         } else if (currentChar == '}') {
           // end of param, replace placeholder by value if possible
           inParam = false
           val (failed, replacement) = {
             try {
-              val index = paramInFlight.toInt
+              val index = paramInFlight.toString().toInt
               if (index >= 0 && index < params.length) {
                 (false, params(index).toString)
               } else if (index > 0) {
@@ -55,15 +57,17 @@ abstract class Formatter protected () {
 
           // The JVM will fail if e.g. there are bogus params and would not replace
           // any parameter
-          if (failed) substitutionFailure = failed
-          else msgAccumulator ++= replacement
+          if (failed)
+            substitutionFailure = failed
+          else
+            msgAccumulator.append(replacement)
         } else {
-          msgAccumulator += currentChar
+          msgAccumulator.append(currentChar)
         }
       }
 
       if (substitutionFailure || inParam) msg
-      else msgAccumulator.result()
+      else msgAccumulator.toString()
     } else {
       msg
     }
