@@ -2,8 +2,10 @@
 
 [![Build Status](https://travis-ci.org/scala-js/scala-js-java-logging.svg?branch=master)](https://travis-ci.org/scala-js/scala-js-java-logging)
 [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.17.svg)](https://www.scala-js.org/)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.0.0-M3.svg)](https://www.scala-js.org)
+[![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.0.0-M5.svg)](https://www.scala-js.org)
 
-`scalajs-java-logging` is a BSD-licensed reimplementation of the `java.logging` API for Scala.js. 
+`scalajs-java-logging` is a BSD-licensed reimplementation of the `java.logging` API for Scala.js.
 It enables this API in Scala.js projects.
 
 ## Usage
@@ -11,7 +13,7 @@ It enables this API in Scala.js projects.
 Simply add the following line to your sbt settings:
 
 ```scala
-libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.4"
+libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.5"
 ```
 
 If you have a `crossProject`, the setting must be used only in the JS part:
@@ -20,7 +22,7 @@ If you have a `crossProject`, the setting must be used only in the JS part:
 lazy val myCross = crossProject.
   ...
   jsSettings.(
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.4"
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-logging" % "0.1.5"
   )
 ```
 
