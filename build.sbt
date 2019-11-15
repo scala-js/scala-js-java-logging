@@ -27,7 +27,8 @@ val commonSettings: Seq[Setting[_]] = Seq(
 
 val nativeSettings = Seq(
   scalaVersion := "2.11.12",
-  crossScalaVersions := Seq("2.11.12")
+  crossScalaVersions := Seq("2.11.12"),
+  sources in (Compile,doc) := Seq.empty
 )
 
 lazy val root = crossProject(JSPlatform, NativePlatform).
