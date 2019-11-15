@@ -1,4 +1,4 @@
-import sbtcrossproject.crossProject
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 crossScalaVersions in ThisBuild := {
   val allVersions = Seq("2.12.6", "2.11.12", "2.10.7", "2.13.0-M3", "2.13.0-M4")
@@ -25,8 +25,14 @@ val commonSettings: Seq[Setting[_]] = Seq(
       Some("scm:git:git@github.com:scala-js/scala-js-java-logging.git")))
 )
 
-lazy val root: Project = project.in(file(".")).
-  enablePlugins(ScalaJSPlugin).
+val nativeSettings = Seq(
+  scalaVersion := "2.11.12",
+  crossScalaVersions := Seq("2.11.12")
+)
+
+lazy val root = crossProject(JSPlatform, NativePlatform).
+  crossType(CrossType.Pure).
+  in(file(".")).
   settings(commonSettings).
   settings(
     name := "scalajs-java-logging",
@@ -64,7 +70,11 @@ lazy val root: Project = project.in(file(".")).
         </developers>
     ),
     pomIncludeRepository := { _ => false }
-  )
+  ).
+  nativeSettings(nativeSettings)
+
+lazy val rootJS = root.js
+lazy val rootNative = root.native
 
 lazy val testSuite = crossProject(JSPlatform, JVMPlatform).
   jsConfigure(_.enablePlugins(ScalaJSJUnitPlugin)).
@@ -76,12 +86,17 @@ lazy val testSuite = crossProject(JSPlatform, JVMPlatform).
   jsSettings(
     name := "java.logging testSuite on JS"
   ).
-  jsConfigure(_.dependsOn(root)).
+  jsConfigure(_.dependsOn(rootJS)).
   jvmSettings(
     name := "java.logging testSuite on JVM",
     libraryDependencies +=
       "com.novocode" % "junit-interface" % "0.9" % "test"
   )
 
-lazy val testSuiteJS = testSuite.js
-lazy val testSuiteJVM = testSuite.jvm
+lazy val nativeTestSuite = project.
+  settings(
+    name := "java.logging testSuite on Native",
+    nativeSettings
+  ).
+  dependsOn(rootNative).
+  enablePlugins(ScalaNativePlugin)
