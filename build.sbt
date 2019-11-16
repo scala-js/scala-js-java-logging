@@ -1,15 +1,18 @@
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
+val scala210 = "2.10.7"
+val scala211 = "2.11.12"
+val scala212 = "2.12.10"
+val scala213 = "2.13.1"
+
 crossScalaVersions in ThisBuild := {
-  val allVersions = Seq("2.12.10", "2.11.12", "2.10.7", "2.13.1")
+  val allVersions = Seq(scala210, scala211, scala212, scala213)
   if (scalaJSVersion.startsWith("0.6."))
     allVersions
-  else if (scalaJSVersion == "1.0.0-M3")
-    allVersions.filter(v => !v.startsWith("2.10.") && v != "2.13.0-M4")
   else
-    allVersions.filter(!_.startsWith("2.10."))
+    allVersions.filter(_ != scala210)
 }
-scalaVersion in ThisBuild := (crossScalaVersions in ThisBuild).value.head
+scalaVersion in ThisBuild := scala212
 
 val commonSettings: Seq[Setting[_]] = Seq(
   version := "0.1.6-SNAPSHOT",
@@ -26,8 +29,8 @@ val commonSettings: Seq[Setting[_]] = Seq(
 )
 
 val nativeSettings = Seq(
-  scalaVersion := "2.11.12",
-  crossScalaVersions := Seq("2.11.12"),
+  scalaVersion := scala211,
+  crossScalaVersions := Seq(scala211),
   sources in (Compile,doc) := Seq.empty
 )
 
